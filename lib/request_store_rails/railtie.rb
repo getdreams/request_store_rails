@@ -6,9 +6,15 @@ module RequestStoreRails
 
     initializer 'request_store_rails.insert_middleware' do |app|
       app.config.middleware.insert_after ActionDispatch::RequestId, RequestStoreRails::Middleware
-
-      ActionDispatch::Reloader.to_cleanup do
-        RequestLocals.clear_all!
+      
+      if defined? ActiveSupport::Reloader
+        ActiveSupport::Reloader.to_complete do
+          RequestLocals.clear_all!
+        end
+      else
+        ActionDispatch::Reloader.to_cleanup do
+          RequestLocals.clear_all!
+        end
       end
     end
   end
